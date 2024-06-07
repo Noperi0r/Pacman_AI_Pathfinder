@@ -1,4 +1,6 @@
 from opencv import *
+from ObjectDetector import ObjectDetector
+
 
 while True:
     # 특정 어플리케이션 창 위치 및 크기 가져오기
@@ -10,6 +12,9 @@ while True:
     x, y, x1, y1 = rect
     w = x1 - x
     h = y1 - y
+
+    # x, y, w, h 값 확인
+    print(f"Window position and size: x={x}, y={y}, w={w}, h={h}")
 
     # 화면 캡처
     screenshot = pyautogui.screenshot()
@@ -35,21 +40,18 @@ while True:
         update_direction_info()
         print_cell_data()
 
-
     # 영역이 유효한지 확인
     if w > 0 and h > 0:
         app_frame = frame[y:y+h, x:x+w]
 
         # 이미지 크기 확인
         if app_frame.size > 0:
-            h, w, _ = app_frame.shape
-
+            h, w, _ = app_frame.shape # 행, 열 
+            print(f"Extracted frame size: width={w}, height={h}")
 
             # 셀의 크기 계산 하드코딩;;
             cell_width = 60
             cell_height = 35
-
-            
 
             # 게임 스크린을 셀로 나누기
             cells = process_screen(app_frame, cell_width, cell_height)
@@ -62,6 +64,8 @@ while True:
 
             # OpenCV 화면 보여주기
             cv2.imshow(app_name, app_frame)
+        else:
+            print("Extracted frame has size 0.")
     else:
         print("Invalid window size or position.")
 
