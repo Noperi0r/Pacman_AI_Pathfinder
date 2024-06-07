@@ -1,6 +1,7 @@
 from opencv import *
 from ObjectDetector import ObjectDetector
 
+
 while True:
     # 특정 어플리케이션 창 위치 및 크기 가져오기
     rect = get_window_rect(app_name)
@@ -24,6 +25,21 @@ while True:
     # BGR로 변환 (OpenCV는 BGR을 사용)
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
+    # 'c' 키를 눌렀을 때 배열 초기화 및 벽 확인
+    if cv2.waitKey(1) & 0xFF == ord('c'):
+        initialize_cell_data()
+        for y, row in enumerate(cells):
+            if y == 0 or y > 27: # 맨 윗줄 건너뛰기
+                continue
+            for x, cell in enumerate(row):
+                if x == 0 or x >21: # 왼쪽 열 건너뛰기
+                    continue
+                classify_and_store_cell(cell, y-1, x-1)  # 인덱스 조정
+
+        # 배열 정보 출력
+        update_direction_info()
+        print_cell_data()
+
     # 영역이 유효한지 확인
     if w > 0 and h > 0:
         app_frame = frame[y:y+h, x:x+w]
@@ -32,7 +48,6 @@ while True:
         if app_frame.size > 0:
             h, w, _ = app_frame.shape # 행, 열 
             print(f"Extracted frame size: width={w}, height={h}")
-
 
             # 셀의 크기 계산 하드코딩;;
             cell_width = 60
