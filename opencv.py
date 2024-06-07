@@ -5,10 +5,7 @@ import win32gui
 
 # 팩맨 게임 창의 정확한 제목을 여기에 입력합니다
 app_name = "VirtuaNES - pac"
-
-def initialize_cell_data():
-    global cell_data
-    cell_data = [[{'is_wall': True, 'player': False , 'enemy': False, 'food': False ,'E': 0, 'W': 0, 'S': 0, 'N': 0, 'grid':(row, col)} for col in range(21)] for row in range(27)]
+cell_data = [[{'is_wall': True, 'player': False , 'enemy': False, 'food': False ,'E': 0, 'W': 0, 'S': 0, 'N': 0, 'grid':(row, col)} for col in range(21)] for row in range(27)]
 
 def classify_and_store_cell(cell, row, col):
     cell_type = classify_cell(cell)
@@ -16,6 +13,15 @@ def classify_and_store_cell(cell, row, col):
         cell_data[row][col]['is_wall'] = True
     else:
         cell_data[row][col]['is_wall'] = False
+    
+
+def classify_food(cell, row, col):
+    cell_type = classify_cell(cell)
+    if cell_type == 'food':
+        cell_data[row][col]['food'] = True
+    else:
+        cell_data[row][col]['food'] = False
+
 
 def update_direction_info():
     for row in range(27):
