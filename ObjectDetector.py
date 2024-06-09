@@ -44,7 +44,7 @@ class ObjectDetector:
     def PlotBoxes(self, results, frame):
         labels, cord = results # Unpack label coord
         x_shape, y_shape = frame.shape[1], frame.shape[0] # col, row 
-        print("Length of objects detected: ", len(labels))
+        #print("Length of objects detected: ", len(labels))
         
         for i in range(len(labels)):
             row = cord[i]

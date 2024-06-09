@@ -77,17 +77,19 @@ while True:
             app_frame = objDetector.PlotBoxes(results, app_frame)
             
             # Player AI handling 
-            if len(results[0]) > 0: # number of detected objects 
+            if len(results[0]) > 0: # number of detected obj
                 player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos = objDetector.UpdateCellInfo(results, app_frame, cell_data)
-                pacman.UpdateAIInfo(cell_data, player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos)
-                pacman.run()
-                pacman.GiveInput()
-                # next_pos = pathFinder.Run(player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos, cell_data)
-                # pathFinder.GiveInput(player_pos, next_pos)
+                if player_pos == ():
+                    print("No player detected")
+                else:
+                    pacman.UpdateAIInfo(cell_data, player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos)
+                    pacman.decide_next_pos()
+                    pacman.GiveInput()
+                    # next_pos = pathFinder.Run(player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos, cell_data)
+                    # pathFinder.GiveInput(player_pos, next_pos)
                 
             # OpenCV 화면 보여주기
             cv2.imshow("YOLOV5 detection", app_frame)
-            print("while ok")
         else:
             print("Extracted frame has size 0.")
     else:

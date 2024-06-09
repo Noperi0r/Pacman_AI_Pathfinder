@@ -46,7 +46,7 @@ class PacManAI:
             current = heapq.heappop(oheap)[1]
             if current == goal:
                 data = []
-                while current in came_from:
+                for current in came_from:
                     data.append(current)
                     current = came_from[current]
                 return data[::-1]
@@ -54,6 +54,7 @@ class PacManAI:
             close_set.add(current)
             for i, j in neighbors:
                 neighbor = current[0] + i, current[1] + j
+                tentative_g_score = 0
                 if 0 <= neighbor[0] < len(self.cell_data) and 0 <= neighbor[1] < len(self.cell_data[0]) and not self.cell_data[neighbor[0]][neighbor[1]]['is_wall']:
                     #continue 
                     tentative_g_score = gscore[current] + self.heuristic(current, neighbor)
@@ -82,16 +83,16 @@ class PacManAI:
         return farthest
 
     def move_to(self, target):
-        print("move_to: ",self.player_pos, "  -astar>> ", target) 
+        #print("move_to: ",self.player_pos, "  -astar>> ", target) 
         path = self.a_star_search(self.player_pos, target)
         if path:
-            print("path: ", path)
-            return path[1] # next position 
+            #print("CURPLAYERPOS: ", self.player_pos, "//" ,"path: ", path)
+            return path[len(path)-1] # next position. MODIFIED: 1 to 0 
         else:
             print("move_to method ERROR: No path")
             return (-1, -1)
     
-    def run(self):
+    def decide_next_pos(self):
         # if self.power_mode: # Priority 1: Power mode
         #     print("run: power mode")
         #     self.power_mode_timer -= 1
@@ -101,12 +102,13 @@ class PacManAI:
         #     closest_ghost = min(self.ghosts_pos, key=lambda ghost: self.heuristic(self.player_pos, ghost))
         #     self.player_next_pos = self.move_to(closest_ghost)
         #     return self.player_next_pos
-            
-        for ghost_pos in self.ghosts_pos: # Prioriity 2: Flee
-            if self.heuristic(self.player_pos, ghost_pos) < 5:  # If ghost is close
-                print("run: ghosts pos")
-                self.player_next_pos = self.flee(self.player_pos, ghost_pos)
-                return self.player_next_pos
+        
+        # if self.ghosts_pos:
+        #     for ghost_pos in self.ghosts_pos: # Prioriity 2: Flee
+        #         if self.heuristic(self.player_pos, ghost_pos) < 5:  # If ghost is close
+        #             print("run: ghosts pos")
+        #             self.player_next_pos = self.flee(self.player_pos, ghost_pos)
+        #             return self.player_next_pos
 
         # if self.power_pellets_pos:
         #     print("run: power pellets pos")
@@ -117,10 +119,10 @@ class PacManAI:
         #         self.power_mode_timer = 50  # Power mode duration
         #         self.power_pellets_pos.remove(closest_pellet)
         #     return self.player_next_pos
-        print("closest dot chase")
-        closest_dot = min(self.dots_pos, key=lambda dot: self.heuristic(self.player_pos, dot))
-        self.player_next_pos = self.move_to(closest_dot)
-        return self.player_next_pos
+        if self.dots_pos:
+            closest_dot = min(self.dots_pos, key=lambda dot: self.heuristic(self.player_pos, dot))
+            self.player_next_pos = self.move_to(closest_dot)
+            return self.player_next_pos
         
     def GiveInput(self):
         # y, x
