@@ -55,9 +55,10 @@ class ObjectDetector:
                 cv2.putText(frame, self.ClassToLabel(labels[i]), (x1,y1), cv2.FONT_HERSHEY_SIMPLEX, 0.9, bgr)
         return frame
     
-    def UpdateCellInfo(self, results, frame, cell_data):
+    def UpdateCellInfo(self, results, frame, cell_data, cell_width, cell_height):
         labels, cord = results
-        x_shape, y_shape = frame.shape[1], frame.shape[0]
+        y_shape ,x_shape = frame.shape[0], frame.shape[1]
+        map_y_shape, map_x_shape =  cell_height * len(cell_data), cell_width * len(cell_data[0])
 
         player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos = (), [], [], [], []
         
@@ -67,7 +68,12 @@ class ObjectDetector:
                 x1, y1, x2, y2 = int(row[0]*x_shape), int(row[1]*y_shape), int(row[2]*x_shape), int(row[3]*y_shape)
                 center = ((y1+y2) // 2, (x1+x2) // 2) # y, x 
 
-                idxRow, idxCol = center[0] // (frame.shape[0] // 27), center[1] // (frame.shape[1] // 21)
+                #idxRow, idxCol = center[0] // (frame.shape[0] // 27), center[1] // (frame.shape[1] // 21) # ERROR 
+                idxRow, idxCol = center[0] // (map_y_shape // 27), center[1] // (map_x_shape // 21) 
+                
+                if cell_data[idxRow][idxCol]['is_wall']:
+                    continue
+                
                 objName = self.ClassToLabel(labels[i])
                 if objName == "Player":
                     #player_pos.append((idxRow, idxCol))

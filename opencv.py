@@ -3,11 +3,18 @@ import numpy as np
 import pyautogui
 import win32gui
 
-cell_data = [[{'is_wall': True, 'player': False , 'ghost': False, 'ghost_edible': False, 'food': False , 'E': 0, 'W': 0, 'S': 0, 'N': 0, 'grid':(row, col)} for col in range(21)] for row in range(27)]
+# 셀의 크기 계산 하드코딩;;
+cell_width = 60
+cell_height = 35
+
+cell_data = [[{'is_wall': True, 'player': False , 'ghost': False, 'ghost_edible': False, 'food': False , 'E': 0, 'W': 0, 'S': 0, 'N': 0, 'grid':(row, col), (row, col): (0,0)} for col in range(21)] for row in range(27)]
 
 def initialize_cell_data():
     global cell_data
-    cell_data = [[{'is_wall': True, 'player': False , 'enemy': False, 'food': False ,'E': 0, 'W': 0, 'S': 0, 'N': 0, 'grid':(row, col)} for col in range(21)] for row in range(27)]
+    for row in range(len(cell_data)): 
+        for col in range(len(cell_data[0])):
+            cell_data[row][col][(row, col)] = (cell_height / 2 * (row + 1), cell_width / 2 * (col + 1))
+    print("initialize_cell_data: OK")
 
 def classify_and_store_cell(cell, row, col):
     cell_type = classify_cell(cell)
@@ -56,7 +63,10 @@ def debug_cell_data():
     for row in cell_data:
         row_symbols = []
         for cell in row:
-            if cell['is_wall']:
+            if cell['player']:
+                row_symbols.append("★")
+            
+            elif cell['is_wall']:
                 row_symbols.append('■')
             else:
                 directions = tuple(sorted([k for k, v in cell.items() if v == 1 and k in 'EWNS']))

@@ -1,7 +1,6 @@
 from opencv import *
 from ObjectDetector import *
 from PlayAI import PacManAI
-from PathFinder import PathFinder
 
 # VERSION USED ------------------------
 # REFERENCE LINK: https://pytorch.org/get-started/locally/
@@ -20,10 +19,10 @@ app_name = "VirtuaNES - pac"
 # YOLOv5 model load with learned parameters best.pt
 objDetector = ObjectDetector("best.pt")
 pacman = PacManAI()
-pathFinder = PathFinder()
 
 isScreenProcessed = False
 cells = []
+initialize_cell_data()
 
 while True:
     # 특정 어플리케이션 창 위치 및 크기 가져오기
@@ -44,10 +43,6 @@ while True:
         app_frame = frame
         if app_frame.size > 0:
             h, w, _ = app_frame.shape # 행, 열 
-            
-            # 셀의 크기 계산 하드코딩;;
-            cell_width = 60
-            cell_height = 35
             
             if not isScreenProcessed: # Generate cell
                 isScreenProcessed = True
@@ -78,16 +73,15 @@ while True:
             
             # Player AI handling 
             if len(results[0]) > 0: # number of detected obj
-                player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos = objDetector.UpdateCellInfo(results, app_frame, cell_data)
+                player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos = objDetector.UpdateCellInfo(results, app_frame, cell_data, cell_width, cell_height)
                 if player_pos == ():
                     print("No player detected")
                 else:
                     pacman.UpdateAIInfo(cell_data, player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos)
                     pacman.decide_next_pos()
-                    pacman.GiveInput()
-                    # next_pos = pathFinder.Run(player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos, cell_data)
-                    # pathFinder.GiveInput(player_pos, next_pos)
-                
+                    pacman.GiveInput(cell_data)
+
+            debug_cell_data() # TODO: Player 정보 초기화 필요
             # OpenCV 화면 보여주기
             cv2.imshow("YOLOV5 detection", app_frame)
         else:
