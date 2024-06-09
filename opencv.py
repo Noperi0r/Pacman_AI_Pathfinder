@@ -3,8 +3,7 @@ import numpy as np
 import pyautogui
 import win32gui
 
-# 팩맨 게임 창의 정확한 제목을 여기에 입력합니다
-app_name = "VirtuaNES - pac"
+cell_data = [[{'is_wall': True, 'player': False , 'ghost': False, 'ghost_edible': False, 'food': False , 'E': 0, 'W': 0, 'S': 0, 'N': 0, 'grid':(row, col)} for col in range(21)] for row in range(27)]
 
 def initialize_cell_data():
     global cell_data
@@ -36,7 +35,7 @@ def update_direction_info():
 
 
 
-def print_cell_data():
+def debug_cell_data():
     direction_symbols = {('E', 'N', 'S', 'W'): '┼', 
                          ('E', 'S', 'W'): '┯', 
                          ('E', 'N', 'W'): '┴',
@@ -94,21 +93,22 @@ def process_screen(image, cell_width, cell_height):
 
 COLOR_TARGETS = {
     'wall': (248, 96, 64),  # 파란색
-    'food': (0, 160, 255),  # 주황색 (먹이)
+    #'food': (0, 160, 255),  # 주황색 (먹이)
 }
 
 def classify_cell(cell):
     cell_hsv = cv2.cvtColor(cell, cv2.COLOR_BGR2HSV)  # HSV로 변환하여 색상 검출 정확도를 높임
+    #cell_hsv = cv2.cvtColor(cell, cv2.COLOR_RGB2HSV_FULL)
     for item, target_color in COLOR_TARGETS.items():
         lower = np.array(target_color) - 10
         upper = np.array(target_color) + 10
         mask = cv2.inRange(cell, lower, upper)
         ratio = cv2.countNonZero(mask) / (cell.shape[0] * cell.shape[1])
-        if ratio > 0.1 and ratio < 0.3:  # 특정 색상이 셀의 일정 퍼센트 이상일 때 해당 항목으로 분류
+        if ratio > 0.05 and ratio < 0.3:  # 특정 색상이 셀의 일정 퍼센트 이상일 때 해당 항목으로 분류
             return item
     return 'empty' #기본값.
 
-def draw_grid_and_text(image, cells, cell_width, cell_height):
+def draw_grid_classify(image, cells, cell_width, cell_height):
     height, width, _ = image.shape
     for y, row in enumerate(cells):
         for x, cell in enumerate(row):

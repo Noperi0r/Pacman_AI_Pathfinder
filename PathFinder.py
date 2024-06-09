@@ -1,6 +1,7 @@
 from pyamaze import maze, agent
 from queue import PriorityQueue
 from collections import deque
+import win32api, win32con
 
 class PathFinder:
     def __init__(self):
@@ -64,16 +65,18 @@ class PathFinder:
         while cell != start:
             fwdPath[aPath[cell]] = cell # value of the forward path will be the key of the a path 
             cell = aPath[cell] # Next cell 
+        
+        fwdPath = {key: fwdPath[key] for key in reversed(fwdPath)}
         return fwdPath
     
-    def AStar(self, cellData):
-        startPos = self.GetPlayerCellPos() # row, col 
-        goalPos = self.GetNearestFoodCellPos()
+    def AStar(self, cellData, startPos, goalPos):
+        #startPos = self.GetPlayerCellPos() # row, col 
+        #goalPos = self.GetNearestFoodCellPos()
         
-        g_score = {cellPos:float('inf') for cellRow in cellData for cellPos in cellRow['grid']}
+        g_score = {cellPos['grid']:float('inf') for cellRow in cellData for cellPos in cellRow}
         g_score[startPos] = 0
 
-        f_score = {cellPos:float('inf') for cellRow in cellData for cellPos in cellRow['grid']}
+        f_score = {cellPos['grid']:float('inf') for cellRow in cellData for cellPos in cellRow}
         f_score[startPos] = self.Heuristic(startPos, goalPos)
         
         open = PriorityQueue()
@@ -85,7 +88,7 @@ class PathFinder:
             if currentCellPos == goalPos:
                 break
             
-            if cellData[startPos[0]][startPos[1]]['is_wall'] == False:
+            if cellData[currentCellPos[0]][currentCellPos[1]]['is_wall'] == False:
                 for d in "ESNW":
                     childCellElement = [0,0]
                     if d == 'E':
@@ -113,6 +116,7 @@ class PathFinder:
                         aPath[childCellPos] = currentCellPos
         fwdPath = {}
         cell = goalPos
+        print(aPath)
         while cell != startPos:
             fwdPath[aPath[cell]] = cell
             cell = aPath[cell]
@@ -150,23 +154,94 @@ class PathFinder:
                 if cell['player'] == True:
                     return cell['grid'] # tuple
             
-    # TODO: Implement here
     def GetNearestFoodCellPos(self, cell_data):
         return self.BFS(cell_data, "food")    
-
-    # TODO: Implement here            
-    def MovePlayerAI(self):
-        fwdPath = {} # TODO: Get A star route 
-        pass
     
-m = maze(10,10) # maze top left 1,1 > bottom right 5,5 coordinate. x for row, y for col 
-m.CreateMaze()
+    def Run(self, player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos, cell_data):
+        # if self.power_mode: # Priority 1: Power mode
+        #     print("run: power mode")
+        #     self.power_mode_timer -= 1
+        #     if self.power_mode_timer <= 0:
+        #         self.power_mode = False
 
-pathFinder = PathFinder()
-path = pathFinder.AStarTest(m)
+        #     closest_ghost = min(self.ghosts_pos, key=lambda ghost: self.heuristic(self.player_pos, ghost))
+        #     self.player_next_pos = self.move_to(closest_ghost)
+        #     return self.player_next_pos
+            
+        for ghost_pos in ghosts_pos: # Prioriity 2: Flee
+            if self.Heuristic(player_pos, ghost_pos) < 5:  # If ghost is close
+                print("run: Flee")
+                player_next_pos = self.Flee(player_pos, ghost_pos)
+                return player_next_pos
 
-a = agent(m)
-m.tracePath({a:path})
+        # if power_pellets_pos:
+        #     print("run: power pellets pos")
+        #     closest_pellet = min(power_pellets_pos, key=lambda pellet: self.Heuristic(player_pos, pellet))
+        #     player_next_pos = self.move_to(closest_pellet)
+        #     if player_next_pos == closest_pellet:
+        #         self.power_mode = True
+        #         self.power_mode_timer = 50  # Power mode duration
+        #         self.power_pellets_pos.remove(closest_pellet)
+        #     return player_next_pos
+            
+        closest_dot = min(dots_pos, key=lambda dot: self.Heuristic(player_pos, dot))
+        player_next_pos = self.MoveTo(cell_data, player_pos, closest_dot)
+        return player_next_pos
+    
+    def MoveTo(self, cell_data, player_pos, target):
+        print(player_pos, "  -astar>> ", target)
+        path = self.AStar(cell_data, player_pos, target)
+        if path:
+            print(path)
+            return path[player_pos] # next position 
+        else:
+            print("move_to method ERROR: No path")
+            return (-1, -1)
+            
+    def Flee(self, player_pos, ghost_pos, cell_data):
+        neighbors = [(0, 1), (0, -1), (1, 0), (-1, 0)] # r , l, d, u 
+        farthest = None
+        max_dist = -1
+        
+        for i, j in neighbors:
+            neighbor = player_pos[0] + i, player_pos[1] + j
+            if 0 <= neighbor[0] < len(cell_data) and 0 <= neighbor[1] < len(cell_data[0]) and not cell_data[neighbor[0]][neighbor[1]]['is_wall']:
+                dist = self.Heuristic(neighbor, ghost_pos)
+                if dist > max_dist:
+                    max_dist = dist
+                    farthest = neighbor
+        return farthest
 
-print(m.grid) # EWNS dictionary for each cell 
-m.run()
+    def GiveInput(self, player_pos, player_next_pos):
+        # y, x
+        print(player_pos, "--GiveInput-->", player_next_pos)
+        newPos = (player_next_pos[0] - player_pos[0], player_next_pos[1] - player_pos[1])
+        
+        # 0 row y , 1 col x
+        if newPos[0] == 0 and newPos[1] > 0: # Go right 
+            win32api.keybd_event(win32con.VK_RIGHT, 0, 0, 0)
+            print("RightArrow Pressed") 
+            
+        elif newPos[0] == 0 and newPos[1] < 0: # Go left 
+            win32api.keybd_event(win32con.VK_LEFT, 0, 0, 0)
+            print("LeftArrow Pressed") 
+            
+        elif newPos[0] < 0 and newPos[1] == 0: # Go up 
+            win32api.keybd_event(win32con.VK_UP, 0, 0, 0)
+            print("UpArrow Pressed") 
+            
+        elif newPos[0] > 0 and newPos[1] == 0: # Go down 
+            win32api.keybd_event(win32con.VK_DOWN, 0, 0, 0)
+            print("DownArrow Pressed") 
+    
+# m = maze(10,10) # maze top left 1,1 > bottom right 5,5 coordinate. x for row, y for col 
+# m.CreateMaze()
+
+# pathFinder = PathFinder()
+# path = pathFinder.AStarTest(m)
+# print(path)
+
+# a = agent(m)
+# m.tracePath({a:path})
+
+# m.run()
