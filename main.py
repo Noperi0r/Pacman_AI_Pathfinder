@@ -10,9 +10,6 @@ from PlayAI import PacManAI
 # torchaudio 2.3.1+cu121
 # -------------------------------------
 
-# WARNING BEFORE RUNNING 
-# 모델 로딩되는 동안 팩맨 게임을 시작하자마자 일시정지 시킨 상태로 벽을 감지해야 감지가 잘 됨 
-
 # 팩맨 게임 창의 정확한 제목을 여기에 입력합니다
 app_name = "VirtuaNES - pac"
 
