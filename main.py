@@ -4,6 +4,7 @@ from PlayAI import PacManAI
 from PathFinder import PathFinder
 
 # VERSION USED ------------------------
+# REFERENCE LINK: https://pytorch.org/get-started/locally/
 # CUDA 1.2.1 
 # Pytorch 2.3.1+cu121
 # torchvision 0.18.1+cu121
