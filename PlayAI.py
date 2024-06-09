@@ -124,26 +124,37 @@ class PacManAI:
             self.player_next_pos = self.move_to(closest_dot)
             return self.player_next_pos
         
-    def GiveInput(self):
+    def GiveInput(self, cell_data):
         # y, x
+        try:
+            cell_data[self.player_pos[0]][self.player_pos[1]]
+            cell_data[self.player_next_pos[0]][self.player_next_pos[1]]
+        except:
+            print("cell data index out of range by playerpos or playerNextpos LOL")
+            
         print("GiveInput: " , self.player_pos, "->", self.player_next_pos)
         newPos = (self.player_next_pos[0] - self.player_pos[0], self.player_next_pos[1] - self.player_pos[1])
         
+        inputTryNum = 1000 # 1번만 input 주니까 잘 안돼서 여러번 매크로처럼 주려고 함 
         # 0 row y , 1 col x
         if newPos[0] == 0 and newPos[1] > 0: # Go right 
-            win32api.keybd_event(win32con.VK_RIGHT, 0, 0, 0)
+            for i in range(inputTryNum):
+                win32api.keybd_event(win32con.VK_RIGHT, 0, 0, 0)
             print("RightArrow Pressed") 
             
         elif newPos[0] == 0 and newPos[1] < 0: # Go left 
-            win32api.keybd_event(win32con.VK_LEFT, 0, 0, 0)
+            for i in range(inputTryNum):
+                win32api.keybd_event(win32con.VK_LEFT, 0, 0, 0)
             print("LeftArrow Pressed") 
             
         elif newPos[0] < 0 and newPos[1] == 0: # Go up 
-            win32api.keybd_event(win32con.VK_UP, 0, 0, 0)
+            for i in range(inputTryNum):
+                win32api.keybd_event(win32con.VK_UP, 0, 0, 0)
             print("UpArrow Pressed") 
             
         elif newPos[0] > 0 and newPos[1] == 0: # Go down 
-            win32api.keybd_event(win32con.VK_DOWN, 0, 0, 0)
+            for i in range(inputTryNum):
+                win32api.keybd_event(win32con.VK_DOWN, 0, 0, 0)
             print("DownArrow Pressed") 
         
 # # Load YOLOv5 model
