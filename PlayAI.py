@@ -14,6 +14,13 @@ class PacManAI:
         self.power_mode_timer = 0
         
         self.player_next_pos = (0,0)
+        self.path = []
+
+
+    def print_path(self):
+        print(f"Current path: {self.path}")
+
+
 
     # Should be called per frame
     def UpdateAIInfo(self, cell_data, player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos):
@@ -79,19 +86,10 @@ class PacManAI:
         return farthest
 
     def move_to(self, target):
-        path = self.a_star_search(self.player_pos, target)
-        n = 0
-        for axis in path:
-            try:
-                if self.cell_data[axis[0]][axis[1]]['is_wall']:
-                    n += 1
-            except:
-                print("NO")
-        print(n)                
-        
-        print(self.player_pos, " // ", path)
-        if path:
-            return path[len(path)-1] # next position.
+        self.path = self.a_star_search(self.player_pos, target)
+        if self.path:
+            #print("CURPLAYERPOS: ", self.player_pos, "//" ,"path: ", path)
+            return self.path[len(self.path)-1] # next position. MODIFIED: 1 to 0 
         else:
             print("move_to method ERROR: No path")
             return (-1, -1)
