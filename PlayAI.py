@@ -108,6 +108,7 @@ class PacManAI:
         #     self.power_mode_timer -= 1
         #     if self.power_mode_timer <= 0:
         #         self.power_mode = False
+        
 
         #     closest_ghost = min(self.ghosts_pos, key=lambda ghost: self.heuristic(self.player_pos, ghost))
         #     self.player_next_pos = self.move_to(closest_ghost)
@@ -119,7 +120,9 @@ class PacManAI:
         #             print("run: ghosts pos")
         #             self.player_next_pos = self.flee(self.player_pos, ghost_pos)
         #             return self.player_next_pos
+                
 
+        
         # if self.power_pellets_pos:
         #     print("run: power pellets pos")
         #     closest_pellet = min(self.power_pellets_pos, key=lambda pellet: self.heuristic(self.player_pos, pellet))
@@ -129,6 +132,12 @@ class PacManAI:
         #         self.power_mode_timer = 50  # Power mode duration
         #         self.power_pellets_pos.remove(closest_pellet)
         #     return self.player_next_pos
+        
+        if self.edible_ghosts_pos:
+            closest_edible = min(self.edible_ghosts_pos, key=lambda edible: self.heuristic(self.player_pos, edible))
+            self.player_next_pos = self.move_to(closest_edible)
+            return self.player_next_pos
+        
         if self.dots_pos:
             closest_dot = min(self.dots_pos, key=lambda dot: self.heuristic(self.player_pos, dot))
             self.player_next_pos = self.move_to(closest_dot)

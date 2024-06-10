@@ -140,7 +140,7 @@ def draw_grid_classify(image, cells, cell_width, cell_height):
             cv2.putText(image, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
 
-def draw_path(image, path, color=(0, 255, 0), thickness=2):
+def draw_path(image, path, color=(255, 255, 255), thickness=3):
     path = path[::-1]
     for i in range(len(path) - 1):
 
