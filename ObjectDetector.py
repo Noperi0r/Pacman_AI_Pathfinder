@@ -14,7 +14,6 @@ class ObjectDetector:
         print("Using Device: ", self.device)
         self.confidence = 0.3 
         
-        
     def LoadModel(self, model_name):
         temp = pathlib.PosixPath
         pathlib.PosixPath = pathlib.WindowsPath
@@ -65,8 +64,9 @@ class ObjectDetector:
 
         for i in range(len(labels)):
             row = cord[i]
-            # objName = self.ClassToLabel(labels[i])
-            # print(f"{labels[i]} : {objName} // Length: {len(labels)} // for loop: {i} // confidence: {row[4]}")
+            
+            #print(f"{labels[i]} : {objName} // Length: {len(labels)} // for loop: {i} // confidence: {row[4]}")
+                
             if row[4] >= self.confidence: # confidence
                 x1, y1, x2, y2 = int(row[0]*x_shape), int(row[1]*y_shape), int(row[2]*x_shape), int(row[3]*y_shape)
                 center = ((y1+y2) // 2, (x1+x2) // 2) # y, x 
@@ -75,16 +75,11 @@ class ObjectDetector:
                 idxRow, idxCol = center[0] // cell_height, center[1] // cell_width 
 
                 objName = self.ClassToLabel(labels[i])
-
-                # DEBUG 
-                #print(f"{labels[i]} : {objName} // Length: {len(labels)} // for loop: {i} // confidence: {row[4]}")
-
                 try:
-                    if cell_data[idxRow][idxCol]['is_wall']:
-                        continue
+                    # if cell_data[idxRow][idxCol]['is_wall']:
+                    #     continue
                     
                     if objName == "Player":
-                        #player_pos.append((idxRow, idxCol))
                         player_pos = (idxRow, idxCol)
                         cell_data[idxRow][idxCol]["player"] = True
                     else:
@@ -122,30 +117,3 @@ class ObjectDetector:
                 
         return player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos
   
-    # def __call__(self):
-    #     """
-    #     This function is called when class is executed, it runs the loop to read the video frame by frame, and write the output into a new file.
-    #     """
-    #     cap = self.FrameCapture()
-    #     assert cap.isOpened() 
-        
-    #     while True:
-    #         ret, frame = cap.read()
-    #         assert ret
-            
-    #         frame = cv2.resize(frame, (IMGSIZE, IMGSIZE)) # resize to the same size of data yolo used to train
-            
-    #         #start_time = time()
-    #         results = self.ScoreFrame(frame)
-    #         frame = self.PlotBoxes(results, frame)
-            
-    #         #end_time = time()
-    #         #fps = 1/np.round(end_time - start_time, 2)
-    #         #print(f"Frames per Second: {fps}")
-            
-    #         #cv2.putText(frame, f"FPS: {int(fps)}", (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,0), 2)
-    #         cv2.imshow("YOLOv5 Detection", frame)
-            
-    #         if cv2.waitKey(5) & 0xFF == 27:
-    #             break
-    #     cap.release()
