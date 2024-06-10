@@ -1,6 +1,7 @@
 import numpy as np
 import heapq
-
+import win32api, win32con
+import cv2
 
 class PacManAI:
     def __init__(self, cell_data = [], player_pos = (), ghosts_pos = [], edible_ghosts_pos = [], dots_pos = [], power_pellets_pos = []):
@@ -49,9 +50,16 @@ class PacManAI:
             if current == goal:
                 data = []
                 for current in came_from:
-                    if not self.cell_data[current[0]][current[1]]["is_wall"]:
-                        data.append(current)
-                    current = came_from[current]
+                    try:
+                        if not self.cell_data[current[0]][current[1]]["is_wall"]:
+                            data.append(current)
+                        current = came_from[current]
+                        
+                        # if self.cell_data[current[0]][current[1]]['is_wall']:
+                        #     print(f"경로에 벽이 포함됨: {current}")
+                        #     return False
+                    except:
+                        print("A-STAR: Exception handled")
                 return data[::-1]
 
             close_set.add(current)
@@ -88,7 +96,7 @@ class PacManAI:
     def move_to(self, target):
         self.path = self.a_star_search(self.player_pos, target)
         if self.path:
-            #print("CURPLAYERPOS: ", self.player_pos, "//" ,"path: ", path)
+            print(self.player_pos, " // ", self.path)
             return self.path[len(self.path)-1] # next position. MODIFIED: 1 to 0 
         else:
             print("move_to method ERROR: No path")
@@ -143,25 +151,70 @@ class PacManAI:
         #print("GiveInput: " , self.player_pos, "->", self.player_next_pos)
         newPos = (self.player_next_pos[0] - self.player_pos[0], self.player_next_pos[1] - self.player_pos[1])
         
-        inputTryNum = 1000 # 1번만 input 주니까 잘 안돼서 여러번 매크로처럼 주려고 함 
+        inputTryNum = 100 # 1번만 input 주니까 잘 안돼서 여러번 매크로처럼 주려고 함 
         # 0 row y , 1 col x
         if newPos[0] == 0 and newPos[1] > 0: # Go right 
-            # for i in range(inputTryNum):
-            #     win32api.keybd_event(win32con.VK_RIGHT, 0, 0, 0)
+            for i in range(inputTryNum):
+                win32api.keybd_event(win32con.VK_RIGHT, 0, 0, 0)
             print("RightArrow Pressed") 
+            return "R"
             
         elif newPos[0] == 0 and newPos[1] < 0: # Go left 
-            # for i in range(inputTryNum):
-            #     win32api.keybd_event(win32con.VK_LEFT, 0, 0, 0)
+            for i in range(inputTryNum):
+                win32api.keybd_event(win32con.VK_LEFT, 0, 0, 0)
             print("LeftArrow Pressed") 
+            return "L"
             
         elif newPos[0] < 0 and newPos[1] == 0: # Go up 
-            # for i in range(inputTryNum):
-            #     win32api.keybd_event(win32con.VK_UP, 0, 0, 0)
+            for i in range(inputTryNum):
+                win32api.keybd_event(win32con.VK_UP, 0, 0, 0)
             print("UpArrow Pressed") 
+            return "U"
             
         elif newPos[0] > 0 and newPos[1] == 0: # Go down 
-            # for i in range(inputTryNum):
-            #     win32api.keybd_event(win32con.VK_DOWN, 0, 0, 0)
+            for i in range(inputTryNum):
+                win32api.keybd_event(win32con.VK_DOWN, 0, 0, 0)
             print("DownArrow Pressed") 
+            return "D"
+    
+    def GetCurrentPlayerGrid(self, cell_data):
+        for row in range(len(cell_data)):
+            for col in range(len(cell_data[0])):
+                if cell_data[row][col]['player'] == True:
+                    return cell_data[row][col]['grid'] # return (row,col) of player cell 
+    
+    def PositionFeedback(self, dir:str, cell_data, app_frame, cell_width, cell_height):
+        inputTryNum = 100
+        
+        curPos = self.GetCurrentPlayerGrid(cell_data)
+        textPos = (cell_width * 22, cell_height * 14)        
+        fontSize = 2
+        if self.player_pos == curPos: # self.player_pos before update
+            if dir == "R":
+                for i in range(inputTryNum):
+                    win32api.keybd_event(win32con.VK_LEFT, 0, 0, 0)
+                print("Pos Feedback: To Left")
+                cv2.putText(app_frame, "POS FEEDBACK: LEFT", textPos, cv2.FONT_HERSHEY_SIMPLEX, fontSize, (0, 255, 0), 5, cv2.LINE_AA)
+                    
+            elif dir == "L":
+                for i in range(inputTryNum):
+                    win32api.keybd_event(win32con.VK_RIGHT, 0, 0, 0)
+                print("Pos Feedback: To Right")
+                cv2.putText(app_frame, "POS FEEDBACK: RIGHT", textPos, cv2.FONT_HERSHEY_SIMPLEX, fontSize, (0, 255, 0), 5, cv2.LINE_AA)
+
+            elif dir == "U":
+                for i in range(inputTryNum):
+                    win32api.keybd_event(win32con.VK_DOWN, 0, 0, 0)
+                print("Pos Feedback: To Down")
+                cv2.putText(app_frame, "POS FEEDBACK: DOWN", textPos, cv2.FONT_HERSHEY_SIMPLEX, fontSize, (0, 255, 0), 5, cv2.LINE_AA)
+
+            elif dir == "D":
+                for i in range(inputTryNum):
+                    win32api.keybd_event(win32con.VK_UP, 0, 0, 0)
+                print("Pos Feedback: To Up")
+                cv2.putText(app_frame, "POS FEEDBACK: UP", textPos, cv2.FONT_HERSHEY_SIMPLEX, fontSize, (0, 255, 0), 5, cv2.LINE_AA)
+
+        
+
+        
         

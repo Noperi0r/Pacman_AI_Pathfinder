@@ -16,6 +16,7 @@ app_name = "VirtuaNES - pac"
 # YOLOv5 model load with learned parameters best.pt
 objDetector = ObjectDetector("best.pt")
 pacman = PacManAI()
+currentDir = ""
 
 isScreenProcessed = False
 cells = []
@@ -63,7 +64,10 @@ while True:
                 # 배열 정보 출력
                 update_direction_info()
                 debug_cell_data()
-
+            
+            if not currentDir == "":
+                pacman.PositionFeedback(currentDir, cell_data, app_frame, cell_width, cell_height)
+                
             # Object Detection
             results = objDetector.ScoreFrame(app_frame)
             app_frame = objDetector.PlotBoxes(results, app_frame)
@@ -76,17 +80,22 @@ while True:
                 else:
                     pacman.UpdateAIInfo(cell_data, player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos)
                     pacman.decide_next_pos()
-                    pacman.GiveInput(cell_data)
+                    currentDir = pacman.GiveInput(cell_data)
 
+                    if currentDir == "R":
+                        cv2.putText(app_frame, "GO RIGHT", (cell_width*22, cell_height*10), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 5, cv2.LINE_AA)
+                    elif currentDir == "L":
+                        cv2.putText(app_frame, "GO LEFT", (cell_width*22, cell_height*10), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 5, cv2.LINE_AA)
+                    elif currentDir == "U":
+                        cv2.putText(app_frame, "GO UP", (cell_width*22, cell_height*10), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 5, cv2.LINE_AA)
+                    elif currentDir == "D":
+                        cv2.putText(app_frame, "GO DOWN", (cell_width*22, cell_height*10), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 5, cv2.LINE_AA)
 
             #print(f"Window position and size: x={x}, y={y}, w={w}, h={h}") # (width = 1916, height = 993) for hard coding
-
             debug_cell_data() # TODO: Player 정보 초기화 필요
 
-            pacman.print_path()
-        
+            #pacman.print_path()
             app_frame = draw_path(app_frame, pacman.path)
-
 
             # OpenCV 화면 보여주기
             cv2.imshow("YOLOV5 detection", app_frame)
@@ -99,21 +108,5 @@ while True:
         break
 
 cv2.destroyAllWindows()
-
-
-
-# 'c' 키를 눌렀을 때 배열 초기화 및 벽 확인
-if cv2.waitKey(1) & 0xFF == ord('c'):
-    initialize_cell_data()
-    for y, row in enumerate(cells):
-        if y == 0 or y > 27: # 맨 윗줄 건너뛰기
-            continue
-        for x, cell in enumerate(row):
-            if x == 0 or x >21: # 왼쪽 열 건너뛰기
-                continue
-            classify_and_store_cell(cell, y-1, x-1)  # 인덱스 조정
-    # 배열 정보 출력
-    update_direction_info()
-    debug_cell_data()
 
 
