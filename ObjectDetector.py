@@ -22,7 +22,7 @@ class ObjectDetector:
             #model = torch.hub.load("ultralytics/yolov5", 'custom', path=model_name, force_reload=True)
             model = torch.hub.load("./yolov5", "custom", path=model_name, force_reload=True, source="local")
         else:
-            model = torch.hub.load("ultralytics/yolov5", "custom", path=model_name, force_reload=True, source="local")
+            model = torch.hub.load("ultralytics/yolov5", "custom", path=model_name, force_reload=True, trust_repo=True)
         pathlib.PosixPath = temp
         return model 
     
@@ -57,57 +57,68 @@ class ObjectDetector:
     
     def UpdateCellInfo(self, results, frame, cell_data, cell_width, cell_height):
         labels, cord = results
+        
         y_shape ,x_shape = frame.shape[0], frame.shape[1]
-        map_y_shape, map_x_shape =  cell_height * len(cell_data), cell_width * len(cell_data[0])
+        #map_y_shape, map_x_shape =  cell_height * len(cell_data), cell_width * len(cell_data[0])
 
         player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos = (), [], [], [], []
-        
+
         for i in range(len(labels)):
             row = cord[i]
+            # objName = self.ClassToLabel(labels[i])
+            # print(f"{labels[i]} : {objName} // Length: {len(labels)} // for loop: {i} // confidence: {row[4]}")
             if row[4] >= self.confidence: # confidence
                 x1, y1, x2, y2 = int(row[0]*x_shape), int(row[1]*y_shape), int(row[2]*x_shape), int(row[3]*y_shape)
                 center = ((y1+y2) // 2, (x1+x2) // 2) # y, x 
 
-                #idxRow, idxCol = center[0] // (frame.shape[0] // 27), center[1] // (frame.shape[1] // 21) # ERROR 
-                idxRow, idxCol = center[0] // (map_y_shape // 27), center[1] // (map_x_shape // 21) 
-                
-                if cell_data[idxRow][idxCol]['is_wall']:
-                    continue
-                
-                objName = self.ClassToLabel(labels[i])
-                if objName == "Player":
-                    #player_pos.append((idxRow, idxCol))
-                    player_pos = (idxRow, idxCol)
-                    cell_data[idxRow][idxCol]["player"] = True
-                else:
-                    cell_data[idxRow][idxCol]["player"] = False
-                
-                if objName == "Ghost":
-                    ghosts_pos.append((idxRow, idxCol))
-                    cell_data[idxRow][idxCol]["ghost"] = True
-                else:
-                    cell_data[idxRow][idxCol]["ghost"] = False
-                    
-                if objName == "edible_ghost":
-                    edible_ghosts_pos.append((idxRow, idxCol))
-                    cell_data[idxRow][idxCol]["ghost_edible"] = True
-                else:
-                    cell_data[idxRow][idxCol]["ghost_edible"] = False
-                    
-                if objName == "s": # Small pellet
-                    dots_pos.append((idxRow, idxCol))
-                    cell_data[idxRow][idxCol]["food"] = True
-                else:
-                    cell_data[idxRow][idxCol]["food"] = False
+                #idxRow, idxCol = center[0] // (map_y_shape // 27), center[1] // (map_x_shape // 21) 
+                idxRow, idxCol = center[0] // cell_height, center[1] // cell_width 
 
-                if objName == "b":
-                    power_pellets_pos.append((idxRow, idxCol))
-                    cell_data[idxRow][idxCol]["food"] = True
-                else:
-                    cell_data[idxRow][idxCol]["food"] = False
+                objName = self.ClassToLabel(labels[i])
+
+                # DEBUG 
+                #print(f"{labels[i]} : {objName} // Length: {len(labels)} // for loop: {i} // confidence: {row[4]}")
+
+                try:
+                    if cell_data[idxRow][idxCol]['is_wall']:
+                        continue
                     
-                # frame shape: row, col >> 995(h), 1916(w)
-                # celldata : 27(row, y) x 21(col, x) 
+                    if objName == "Player":
+                        #player_pos.append((idxRow, idxCol))
+                        player_pos = (idxRow, idxCol)
+                        cell_data[idxRow][idxCol]["player"] = True
+                    else:
+                        cell_data[idxRow][idxCol]["player"] = False
+                    
+                    if objName == "Ghost":
+                        ghosts_pos.append((idxRow, idxCol))
+                        cell_data[idxRow][idxCol]["ghost"] = True
+                    else:
+                        cell_data[idxRow][idxCol]["ghost"] = False
+                        
+                    if objName == "edible_ghost":
+                        edible_ghosts_pos.append((idxRow, idxCol))
+                        cell_data[idxRow][idxCol]["ghost_edible"] = True
+                    else:
+                        cell_data[idxRow][idxCol]["ghost_edible"] = False
+                        
+                    if objName == "s": # Small pellet
+                        dots_pos.append((idxRow, idxCol))
+                        cell_data[idxRow][idxCol]["food"] = True
+                    else:
+                        cell_data[idxRow][idxCol]["food"] = False
+
+                    if objName == "b":
+                        power_pellets_pos.append((idxRow, idxCol))
+                        cell_data[idxRow][idxCol]["food"] = True
+                    else:
+                        cell_data[idxRow][idxCol]["food"] = False
+                        
+                    # frame shape: row, col >> 995(h), 1916(w)
+                    # celldata : 27(row, y) x 21(col, x) 
+                
+                except:
+                    print("cell_data idxRow, idxCol ERROR in ObjectDetector > updatecellinfo")
                 
         return player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos
   
