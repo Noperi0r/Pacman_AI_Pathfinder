@@ -71,8 +71,8 @@ def debug_cell_data():
             else:
                 directions = tuple(sorted([k for k, v in cell.items() if v == 1 and k in 'EWNS']))
                 row_symbols.append(direction_symbols[directions])
-        print(' '.join(row_symbols))
-    print("\n" + "="*60 + "\n")
+        #print(' '.join(row_symbols))
+    #print("\n" + "="*60 + "\n")
 
 
 def get_window_rect(window_title):
@@ -138,3 +138,26 @@ def draw_grid_classify(image, cells, cell_width, cell_height):
 
             # Put the text on the image
             cv2.putText(image, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+
+
+def draw_path(image, path, color=(0, 255, 0), thickness=2):
+    path = path[::-1]
+    for i in range(len(path) - 1):
+
+
+        start_col, start_row = path[i]
+        end_col, end_row = path[i + 1]
+
+        start_row+=1
+        start_col+=1
+        end_row+=1
+        end_col+=1
+
+        start_pos= (start_row*60+30,start_col*35+18)
+        end_pos = (end_row*60+30,end_col*35+18)
+
+
+        # cv2.line을 사용하여 이미지에 선 그리기
+        cv2.line(image, start_pos, end_pos, color, thickness)
+
+    return image

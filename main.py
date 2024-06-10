@@ -44,7 +44,7 @@ while True:
             if not isScreenProcessed: # Generate cell
                 isScreenProcessed = True
                 
-                print(f"Window position and size: x={x}, y={y}, w={w}, h={h}") # (width = 1916, height = 993) for hard coding
+                #print(f"Window position and size: x={x}, y={y}, w={w}, h={h}") # (width = 1916, height = 993) for hard coding
                 
                 detectionFrame = cv2.cvtColor(app_frame, cv2.COLOR_RGB2BGR)
                 
@@ -79,6 +79,13 @@ while True:
                     pacman.GiveInput(cell_data)
 
             debug_cell_data() # TODO: Player 정보 초기화 필요
+
+            pacman.print_path()
+            
+
+
+            app_frame = draw_path(app_frame, pacman.path)
+
             # OpenCV 화면 보여주기
             cv2.imshow("YOLOV5 detection", app_frame)
         else:

@@ -19,6 +19,13 @@ class PacManAI:
         self.power_mode_timer = 0
         
         self.player_next_pos = (0,0)
+        self.path = []
+
+
+    def print_path(self):
+        print(f"Current path: {self.path}")
+
+
 
     # Should be called per frame
     def UpdateAIInfo(self, cell_data, player_pos, ghosts_pos, edible_ghosts_pos, dots_pos, power_pellets_pos):
@@ -84,10 +91,10 @@ class PacManAI:
 
     def move_to(self, target):
         #print("move_to: ",self.player_pos, "  -astar>> ", target) 
-        path = self.a_star_search(self.player_pos, target)
-        if path:
+        self.path = self.a_star_search(self.player_pos, target)
+        if self.path:
             #print("CURPLAYERPOS: ", self.player_pos, "//" ,"path: ", path)
-            return path[len(path)-1] # next position. MODIFIED: 1 to 0 
+            return self.path[len(self.path)-1] # next position. MODIFIED: 1 to 0 
         else:
             print("move_to method ERROR: No path")
             return (-1, -1)
