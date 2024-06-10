@@ -59,7 +59,7 @@ while True:
                         if x == 0 or x >21: # 왼쪽 열 건너뛰기
                             continue
                         classify_and_store_cell(cell, y-1, x-1)  # 인덱스 조정
-                        
+                         
                 # 배열 정보 출력
                 update_direction_info()
                 debug_cell_data()
@@ -78,7 +78,10 @@ while True:
                     pacman.decide_next_pos()
                     pacman.GiveInput(cell_data)
 
-            debug_cell_data() # TODO: Player 정보 초기화 필요
+            #debug_cell_data() # TODO: Player 정보 초기화 필요
+            #print(f"Window position and size: x={x}, y={y}, w={w}, h={h}") # (width = 1916, height = 993) for hard coding
+            print(f"Window position and size: x={x}, y={y}, w={w}, h={h}") # (width = 1916, height = 993) for hard coding
+
             # OpenCV 화면 보여주기
             cv2.imshow("YOLOV5 detection", app_frame)
         else:
@@ -90,6 +93,8 @@ while True:
         break
 
 cv2.destroyAllWindows()
+
+
 
 # 'c' 키를 눌렀을 때 배열 초기화 및 벽 확인
 if cv2.waitKey(1) & 0xFF == ord('c'):

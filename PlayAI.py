@@ -1,11 +1,6 @@
-import cv2
 import numpy as np
-import torch
 import heapq
-# from yolov5.models.common import DetectMultiBackend
-# from yolov5.utils.datasets import LoadImages
-# from yolov5.utils.general import non_max_suppression, scale_coords
-import win32api, win32con, win32gui
+
 
 class PacManAI:
     def __init__(self, cell_data = [], player_pos = (), ghosts_pos = [], edible_ghosts_pos = [], dots_pos = [], power_pellets_pos = []):
@@ -47,7 +42,8 @@ class PacManAI:
             if current == goal:
                 data = []
                 for current in came_from:
-                    data.append(current)
+                    if not self.cell_data[current[0]][current[1]]["is_wall"]:
+                        data.append(current)
                     current = came_from[current]
                 return data[::-1]
 
@@ -83,11 +79,19 @@ class PacManAI:
         return farthest
 
     def move_to(self, target):
-        #print("move_to: ",self.player_pos, "  -astar>> ", target) 
         path = self.a_star_search(self.player_pos, target)
+        n = 0
+        for axis in path:
+            try:
+                if self.cell_data[axis[0]][axis[1]]['is_wall']:
+                    n += 1
+            except:
+                print("NO")
+        print(n)                
+        
+        print(self.player_pos, " // ", path)
         if path:
-            #print("CURPLAYERPOS: ", self.player_pos, "//" ,"path: ", path)
-            return path[len(path)-1] # next position. MODIFIED: 1 to 0 
+            return path[len(path)-1] # next position.
         else:
             print("move_to method ERROR: No path")
             return (-1, -1)
@@ -128,120 +132,38 @@ class PacManAI:
         # y, x
         try:
             cell_data[self.player_pos[0]][self.player_pos[1]]
+        except:
+            print(f"GiveInput: cell data index out of range by playerpos:{self.player_pos} LOL")
+            return None
+        
+        try:    
             cell_data[self.player_next_pos[0]][self.player_next_pos[1]]
         except:
-            print("cell data index out of range by playerpos or playerNextpos LOL")
+            print(f"GiveInput: cell data index out of range by playerNextPos:{self.player_next_pos} LOL")
+            return None
             
-        print("GiveInput: " , self.player_pos, "->", self.player_next_pos)
+        #print("GiveInput: " , self.player_pos, "->", self.player_next_pos)
         newPos = (self.player_next_pos[0] - self.player_pos[0], self.player_next_pos[1] - self.player_pos[1])
         
         inputTryNum = 1000 # 1번만 input 주니까 잘 안돼서 여러번 매크로처럼 주려고 함 
         # 0 row y , 1 col x
         if newPos[0] == 0 and newPos[1] > 0: # Go right 
-            for i in range(inputTryNum):
-                win32api.keybd_event(win32con.VK_RIGHT, 0, 0, 0)
+            # for i in range(inputTryNum):
+            #     win32api.keybd_event(win32con.VK_RIGHT, 0, 0, 0)
             print("RightArrow Pressed") 
             
         elif newPos[0] == 0 and newPos[1] < 0: # Go left 
-            for i in range(inputTryNum):
-                win32api.keybd_event(win32con.VK_LEFT, 0, 0, 0)
+            # for i in range(inputTryNum):
+            #     win32api.keybd_event(win32con.VK_LEFT, 0, 0, 0)
             print("LeftArrow Pressed") 
             
         elif newPos[0] < 0 and newPos[1] == 0: # Go up 
-            for i in range(inputTryNum):
-                win32api.keybd_event(win32con.VK_UP, 0, 0, 0)
+            # for i in range(inputTryNum):
+            #     win32api.keybd_event(win32con.VK_UP, 0, 0, 0)
             print("UpArrow Pressed") 
             
         elif newPos[0] > 0 and newPos[1] == 0: # Go down 
-            for i in range(inputTryNum):
-                win32api.keybd_event(win32con.VK_DOWN, 0, 0, 0)
+            # for i in range(inputTryNum):
+            #     win32api.keybd_event(win32con.VK_DOWN, 0, 0, 0)
             print("DownArrow Pressed") 
         
-# # Load YOLOv5 model
-# model = DetectMultiBackend(weights='best.pt', device='cpu')  # Adjust device as needed
-# stride, names, pt = model.stride, model.names, model.pt
-
-# def detect_objects(image):
-#     img = [LoadImages(image, img_size=640, stride=stride, auto=pt)]
-#     for path, img, im0s, vid_cap in img:
-#         img = torch.from_numpy(img).to(model.device)
-#         img = img.float() / 255.0  # Normalize
-#         if img.ndimension() == 3:
-#             img = img.unsqueeze(0)
-
-#         pred = model(img, augment=False, visualize=False)
-#         pred = non_max_suppression(pred, 0.25, 0.45, classes=None, agnostic=False)
-#         det = pred[0]
-
-#         gn = torch.tensor(im0s.shape)[[1, 0, 1, 0]]  # normalization gain whwh
-#         if len(det):
-#             det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0s.shape).round()
-        
-#         detected_objects = []
-#         for *xyxy, conf, cls in det:
-#             x1, y1, x2, y2 = map(int, xyxy)
-#             detected_objects.append((names[int(cls)], (x1, y1, x2 - x1, y2 - y2)))
-#         return detected_objects
-
-# # Load screenshot
-# screenshot = 'screenshot.png'
-
-# # Detect objects using YOLO
-# detected_objects = detect_objects(screenshot) # (names[int(cls)], (x1, y1, x2 - x1, y2 - y2))
-
-# # Initialize cell data
-# cell_data = [[{'is_wall': False, 'player': False , 'enemy': False, 'food': False ,'E': 0, 'W': 0, 'S': 0, 'N': 0, 'grid':(row, col)} for col in range(21)] for row in range(27)]
-
-# # Map detected objects to cell data
-# player_pos = None
-# ghosts_pos = []
-# dots_pos = []
-# pellets_pos = []
-
-# for obj_name, box in detected_objects:
-#     x, y, w, h = box                           
-#     center = (x + w // 2, y + h // 2)
-#     row, col = center[0] // (screenshot.shape[1] // 21), center[1] // (screenshot.shape[0] // 27)
-#     if obj_name == "player":
-#         player_pos = (row, col)
-#         cell_data[row][col]['player'] = True
-#     elif obj_name == "ghost":
-#         ghosts_pos.append((row, col))
-#         cell_data[row][col]['enemy'] = True
-#     elif obj_name == "dot":
-#         dots_pos.append((row, col))
-#         cell_data[row][col]['food'] = True
-#     elif obj_name == "pellet":
-#         pellets_pos.append((row, col))
-#         cell_data[row][col]['food'] = True
-
-# if player_pos is None:
-#     player_pos = (10, 10)  # Default starting position if player is not detected
-
-# # Initialize PacManAI
-# ai = PacManAI(cell_data, player_pos, ghosts_pos, dots_pos, pellets_pos)
-
-# def update_player_position(new_pos):
-#     # This function should update the player position in the external game
-#     print(f"Player moved to: {new_pos}")
-
-# # Main loop
-# while True:
-#     next_move = ai.run()
-    
-#     # Update player position in the game
-#     row, col = ai.player_pos
-#     cell_data[row][col]['player'] = True
-
-#     # Send the updated position to the external game
-#     update_player_position(ai.player_pos)
-
-#     # Check if player is caught by a ghost
-#     if ai.player_pos in ai.ghosts_pos:
-#         print("Game Over! You've been caught by a ghost.")
-#         break
-
-#     # Check if all dots are eaten
-#     if len(ai.dots_pos) == 0:
-#         print("Congratulations! You've eaten all the dots and won!")
-#         break
