@@ -3,6 +3,10 @@ from queue import PriorityQueue
 from collections import deque
 import win32api, win32con
 
+#--------------------------------------
+# FILE NOT BEING USED
+#--------------------------------------
+
 class PathFinder:
     def __init__(self):
         pass
