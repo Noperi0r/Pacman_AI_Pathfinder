@@ -160,7 +160,7 @@ class PacManAI:
         #print("GiveInput: " , self.player_pos, "->", self.player_next_pos)
         newPos = (self.player_next_pos[0] - self.player_pos[0], self.player_next_pos[1] - self.player_pos[1])
         
-        inputTryNum = 100 # 1번만 input 주니까 잘 안돼서 여러번 매크로처럼 주려고 함 
+        inputTryNum = 100 
         # 0 row y , 1 col x
         if newPos[0] == 0 and newPos[1] > 0: # Go right 
             for i in range(inputTryNum):
