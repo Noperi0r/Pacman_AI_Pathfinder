@@ -148,13 +148,13 @@ class PacManAI:
         try:
             cell_data[self.player_pos[0]][self.player_pos[1]]
         except:
-            print(f"GiveInput: cell data index out of range by playerpos:{self.player_pos} LOL")
+            print(f"GiveInput: cell data index out of range by playerpos:{self.player_pos}")
             return None
         
         try:    
             cell_data[self.player_next_pos[0]][self.player_next_pos[1]]
         except:
-            print(f"GiveInput: cell data index out of range by playerNextPos:{self.player_next_pos} LOL")
+            print(f"GiveInput: cell data index out of range by playerNextPos:{self.player_next_pos}")
             return None
             
         #print("GiveInput: " , self.player_pos, "->", self.player_next_pos)
