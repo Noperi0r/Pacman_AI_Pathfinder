@@ -103,25 +103,12 @@ class PacManAI:
             return (-1, -1)
     
     def decide_next_pos(self):
-        # if self.power_mode: # Priority 1: Power mode
-        #     print("run: power mode")
-        #     self.power_mode_timer -= 1
-        #     if self.power_mode_timer <= 0:
-        #         self.power_mode = False
-        
-
-        #     closest_ghost = min(self.ghosts_pos, key=lambda ghost: self.heuristic(self.player_pos, ghost))
-        #     self.player_next_pos = self.move_to(closest_ghost)
-        #     return self.player_next_pos
-        
         # if self.ghosts_pos:
         #     for ghost_pos in self.ghosts_pos: # Prioriity 2: Flee
         #         if self.heuristic(self.player_pos, ghost_pos) < 5:  # If ghost is close
         #             print("run: ghosts pos")
         #             self.player_next_pos = self.flee(self.player_pos, ghost_pos)
         #             return self.player_next_pos
-                
-
         
         # if self.power_pellets_pos:
         #     print("run: power pellets pos")

@@ -143,8 +143,6 @@ def draw_grid_classify(image, cells, cell_width, cell_height):
 def draw_path(image, path, color=(255, 255, 255), thickness=3):
     path = path[::-1]
     for i in range(len(path) - 1):
-
-
         start_col, start_row = path[i]
         end_col, end_row = path[i + 1]
 
@@ -155,7 +153,6 @@ def draw_path(image, path, color=(255, 255, 255), thickness=3):
 
         start_pos= (start_row*60+30,start_col*35+18)
         end_pos = (end_row*60+30,end_col*35+18)
-
 
         # cv2.line을 사용하여 이미지에 선 그리기
         cv2.line(image, start_pos, end_pos, color, thickness)

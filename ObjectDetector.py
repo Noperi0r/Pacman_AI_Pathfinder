@@ -64,14 +64,12 @@ class ObjectDetector:
 
         for i in range(len(labels)):
             row = cord[i]
-            
             #print(f"{labels[i]} : {objName} // Length: {len(labels)} // for loop: {i} // confidence: {row[4]}")
                 
             if row[4] >= self.confidence: # confidence
                 x1, y1, x2, y2 = int(row[0]*x_shape), int(row[1]*y_shape), int(row[2]*x_shape), int(row[3]*y_shape)
                 center = ((y1+y2) // 2, (x1+x2) // 2) # y, x 
 
-                #idxRow, idxCol = center[0] // (map_y_shape // 27), center[1] // (map_x_shape // 21) 
                 idxRow, idxCol = center[0] // cell_height, center[1] // cell_width 
 
                 objName = self.ClassToLabel(labels[i])
